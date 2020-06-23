@@ -1,6 +1,9 @@
 import pandas as pd
 import csv
-from numpy.random import choice
+from numpy.random import choice, randint
+import sqlite3 as db
+
+from message_generator import CommentType
 
 end_words = []
 
@@ -45,6 +48,14 @@ def clean_data(data):
             print(i)
             print(data[i])
     return data
+
+
+def generate_pol(start):
+    conn = db.connect('MarkovChainGenerator/pol/database.sqlite')
+    conn.row_factory = lambda cursor, row: row[0]
+    c = conn.cursor()
+    bodys = c.execute('SELECT body FROM 129419703').fetchall()
+    print(bodys)
 
 
 def generate_sexism(start):
@@ -107,6 +118,7 @@ def generate_hate_speech(start):
                 line_count += 1
     print("\n\nLINES ANALYSED: " + str(line_count))
     print("\n\nWORDS ANALYSED: " + str(word_count))
+    all_words = clean_data(all_words)
     return generate_words(all_words, start)
 
 
@@ -139,7 +151,6 @@ def generate_sarcasm(start):
 
 
 def generate_words(all_words, start):
-    all_words = clean_data(all_words)
 
     # print(end_words)
 
@@ -198,3 +209,10 @@ def generate_sentence(pivot_df, start, length):
         current_word = next_word
     sentence = ' '.join(sentence)
     return sentence
+
+
+def get_pivot(type):
+    if type == CommentType.HATE:
+        return generate_hate_speech(randint(0, 3))
+    elif type == CommentType.SARCASTIC:
+        return generate_sarcasm(randint(0,105))

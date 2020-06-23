@@ -3,16 +3,21 @@ import pandas as pd
 import os
 from random import randint
 from random import choice
-import spacy
+from enum import Enum
 
-from MarkovChainGenerator.markov_chain_creator import generate_words, generate_sentence, read_from_file, write_to_file, \
-    generate_hate_speech, generate_sexism
+from MarkovChainGenerator import markov_chain_creator
+from MarkovChainGenerator.ginger import ginger_check_grammar
+from MarkovChainGenerator.markov_chain_creator import generate_pol
+
+
+class CommentType(Enum):
+    SARCASTIC = 1
+    HATE = 2
+    SEXIST = 3
 
 
 def check_grammar(sentence):
-    nlp = spacy.load("en_core_web_sm")
-    parsed = nlp(sentence)
-    print(parsed)
+    ginger_check_grammar(sentence)
 
 
 def analyse_image():
@@ -29,37 +34,22 @@ def analyse_image():
         print(object["name"], " : ", object["percentage_probability"])
 
 
-# gen = MarkovTextGenerator()
-# gen.startword = detections[0]["name"]
-# gen.stopword = detections[1]["name"]
-#
-# print(gen.gen_text(20))
+def randomly_generate(type):
+    pivot = markov_chain_creator.get_pivot(type)
+    word = list(pivot.index)
+    for i in range(20):
+        curr_word = choice(word)
+        # print(curr_word)
+
+        # sentence = generate_sentence(pivot, "fart", 50)
+        from MarkovChainGenerator.markov_chain_creator import generate_sentence
+        sent = generate_sentence(pivot, curr_word, 10)
+        # check_grammar(sent)
+        print(sent)
+
+
 
 start_words = ["help", "retard", "fuck", "drink", "drugs", "coke", "weed", "titties", "sex", "drug", "blood",
                "leader", "fear", "dick", "pussy", "the", "but", "butt", "ok", "french", "english"]
 
-# pivot = generate_sexism(0)
-# word = pivot[pivot.columns[0]].tolist()
-pivot = generate_hate_speech(randint(0, 3))
-# write_to_file(pivot.astype(pd.SparseDtype("float", pd.np.nan)), str(i))
-# pivot = read_from_file('reddit_sarcastic0.csv')
-print(pivot)
-print("read pivot")
-print("GENERATING SENTENCE")
-# for i in range(len(start_words)):
-#     try:
-#         print(generate_sentence(pivot, start_words[i], 20))
-#     except:
-#         print("could not generate sentence starting with word '" + start_words[i] + "'")
-#         continue
-word = list(pivot.index)
-print(word)
-for i in range(20):
-    curr_word = choice(word)
-    # print(curr_word)
-
-# sentence = generate_sentence(pivot, "fart", 50)
-    sent = generate_sentence(pivot, curr_word, 10)
-    print(sent)
-    # check_grammar(sent)
-# print(sentence)
+generate_pol(0)
